@@ -1,4 +1,4 @@
-const CACHE = "canon-photo-assist-beta-v1";
+const CACHE = "canon-photo-assist-beta-v2-objectifs";
 const LOCAL = [
   "./",
   "./index.html",
