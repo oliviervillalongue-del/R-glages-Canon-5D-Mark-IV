@@ -1,6 +1,6 @@
 {
-  "name": "Matis Photo Assist — Multi-boîtiers",
-  "short_name": "Matis",
+  "name": "Canon Photo Assist — Version bêta",
+  "short_name": "Canon Photo",
   "description": "Réglages terrain pour Canon EOS 5D Mark IV, 70D et 200D.",
   "start_url": "./",
   "scope": "./",

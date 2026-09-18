@@ -1,4 +1,4 @@
-Matis Photo Assist — Multi-boîtiers — Version bêta
+Canon Photo Assist — Version bêta
 
 Fichiers à placer à la racine du dépôt GitHub Pages :
 - index.html
@@ -28,4 +28,4 @@ Interface : suppression du cadre inférieur de résultats. La valeur calculée a
 
 Interface : sélection automatique de la caméra arrière en mesure réfléchie et de la caméra avant en mesure incidente ; suppression du bouton de changement de caméra.
 
-Nom de l’application : Matis Photo Assist — Multi-boîtiers.
+Titre visible sur la première page : Matis Photo Assist — Multi-boîtiers.
