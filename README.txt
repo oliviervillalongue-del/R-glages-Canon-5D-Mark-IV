@@ -23,3 +23,5 @@ Version : ajout du posemètre utilisant la caméra du smartphone.
 - Une calibration avec le boîtier photo est recommandée avant utilisation réelle.
 
 Correctif : recalcul immédiat après modification des ISO, de l’ouverture ou de la vitesse, avec indication visible du réglage imposé.
+
+Interface : suppression du cadre inférieur de résultats. La valeur calculée apparaît directement en jaune/orange dans le champ ouverture ou vitesse.

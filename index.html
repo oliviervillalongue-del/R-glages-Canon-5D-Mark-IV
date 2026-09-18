@@ -182,6 +182,8 @@ button,select,input{font:inherit}
 .meter-actions{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:9px}.meter-actions button{border:0;border-radius:9px;padding:12px;font-weight:900}.meter-read{background:var(--canon);color:#fff}.meter-flip{background:#292c30;color:#fff}
 .meter-form{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.meter-field{background:#121416;border:1px solid #34383d;border-radius:8px;padding:8px}.meter-field label{display:block;color:#91969c;font-size:9px;text-transform:uppercase;font-weight:800;margin-bottom:5px}.meter-field select,.meter-field input{width:100%;background:#090a0b;color:#fff;border:1px solid #45494e;border-radius:6px;padding:8px}
 .meter-field.active{border-color:var(--canon);box-shadow:0 0 0 1px #d7192044}.meter-field select:disabled{opacity:.42;color:#aaa}.meter-priority-help{grid-column:1/-1;color:#d8dade;background:#202328;border-radius:7px;padding:7px 9px;font-size:11px;line-height:1.35}
+.meter-field.calculated{border-color:#e2a12a}.meter-field.calculated select:disabled{opacity:1;color:#ffd066;font-weight:900;border-color:#9b7225;background:#19150d}
+.meter-info{margin-top:9px;padding:2px 3px}.meter-info .meter-quality{color:#d4d7da}
 .meter-result{margin-top:10px;border:1px solid #484d52;border-radius:11px;background:#17191c;padding:11px}.meter-result-main{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.meter-result-main div{background:#0d0f10;border-radius:7px;padding:8px;text-align:center}.meter-result-main small{display:block;color:#8f949a;font-size:9px;text-transform:uppercase}.meter-result-main strong{display:block;font-size:18px;margin-top:3px}.meter-quality{font-size:11px;line-height:1.4;color:#aeb3b8;margin-top:9px}.meter-warning{font-size:10px;line-height:1.35;color:#d5b873;margin-top:8px}
 @media(max-width:400px){.meter-result-main strong{font-size:15px}.meter-form{grid-template-columns:1fr 1fr}}
 .beta-users{margin-top:5px;color:#e3e4e5;font-size:11px}
@@ -330,7 +332,7 @@ button,select,input{font:inherit}
         <div id="meterPriorityHelp" class="meter-priority-help">Vous imposez l’ouverture et les ISO : la vitesse sera recalculée automatiquement.</div>
         <div class="meter-field" style="grid-column:1/-1"><label for="meterCalibration">Calibration du téléphone (IL)</label><input id="meterCalibration" type="range" min="-5" max="5" step="0.3" value="0"><div id="meterCalibrationValue" style="font-size:11px;text-align:center;margin-top:4px">0 IL</div></div>
       </div>
-      <div class="meter-result"><div class="meter-result-main"><div><small>Ouverture</small><strong id="meterResultAperture">—</strong></div><div><small>Vitesse</small><strong id="meterResultSpeed">—</strong></div><div><small>ISO</small><strong id="meterResultIso">—</strong></div></div><div id="meterQuality" class="meter-quality">Autorisez la caméra, puis effectuez une mesure.</div><div class="meter-warning">Mesure indicative : calibrez-la une première fois avec la mesure de votre appareil photo. Pour la mesure incidente, placez le téléphone près du visage, caméra tournée vers l’appareil photo, avec un diffuseur blanc translucide devant l’objectif.</div></div>
+      <div class="meter-info"><div id="meterQuality" class="meter-quality">Autorisez la caméra, puis effectuez une mesure.</div><div class="meter-warning">Mesure indicative : calibrez-la une première fois avec la mesure de votre appareil photo. Pour la mesure incidente, placez le téléphone près du visage, caméra tournée vers l’appareil photo, avec un diffuseur blanc translucide devant l’objectif.</div></div>
     </div>
   </section>
 </main>
@@ -613,6 +615,12 @@ buildCameraCards();
   const apertures=[1,1.1,1.2,1.4,1.6,1.8,2,2.2,2.5,2.8,3.2,3.5,4,4.5,5,5.6,6.3,7.1,8,9,10,11,13,14,16,18,20,22];
   const nearest=(arr,n)=>arr.reduce((a,b)=>Math.abs(b-n)<Math.abs(a-n)?b:a);
   const showSpeed=t=>t>=1?`${Math.round(t*10)/10} s`:`1/${Math.max(1,Math.round(1/t))} s`;
+  function showCalculated(select,value,label){
+    [...select.options].filter(o=>o.dataset.calculated==="1").forEach(o=>o.remove());
+    let option=[...select.options].find(o=>Math.abs(Number(o.value)-Number(value))<0.000001);
+    if(!option){option=new Option(label,String(value));option.dataset.calculated="1";select.add(option);}
+    option.textContent=label; select.value=option.value;
+  }
   async function startCamera(){
     if(stream) stream.getTracks().forEach(t=>t.stop());
     try{
@@ -634,14 +642,21 @@ buildCameraCards();
   }
   function calculate(ev){
     const iso=Number($("meterIso").value), priority=$("meterPriority").value; let n,t;
-    if(priority==="aperture"){n=Number($("meterAperture").value);t=nearest(speeds,(n*n)/(Math.pow(2,ev)*(iso/100)));}else{t=Number($("meterSpeed").value);n=nearest(apertures,Math.sqrt(t*Math.pow(2,ev)*(iso/100)));}
-    $("meterResultAperture").textContent=`f/${n}`; $("meterResultSpeed").textContent=showSpeed(t); $("meterResultIso").textContent=iso;
+    if(priority==="aperture"){
+      n=Number($("meterAperture").value);t=nearest(speeds,(n*n)/(Math.pow(2,ev)*(iso/100)));
+      showCalculated($("meterSpeed"),t,showSpeed(t));
+    }else{
+      t=Number($("meterSpeed").value);n=nearest(apertures,Math.sqrt(t*Math.pow(2,ev)*(iso/100)));
+      showCalculated($("meterAperture"),n,`f/${n}`);
+    }
   }
   function updateControls(){
     const aperturePriority=$("meterPriority").value==="aperture";
     $("meterAperture").disabled=!aperturePriority; $("meterSpeed").disabled=aperturePriority;
     $("meterAperture").closest(".meter-field").classList.toggle("active",aperturePriority);
     $("meterSpeed").closest(".meter-field").classList.toggle("active",!aperturePriority);
+    $("meterAperture").closest(".meter-field").classList.toggle("calculated",!aperturePriority&&lastEV!==null);
+    $("meterSpeed").closest(".meter-field").classList.toggle("calculated",aperturePriority&&lastEV!==null);
     $("meterPriorityHelp").textContent=aperturePriority
       ?"Vous imposez l’ouverture et les ISO : la vitesse est recalculée automatiquement."
       :"Vous imposez la vitesse et les ISO : l’ouverture est recalculée automatiquement.";
@@ -653,7 +668,7 @@ buildCameraCards();
     const samples=[]; for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,160));const s=analyseFrame();if(s)samples.push(s);}
     $("meterMeasure").disabled=false; $("meterMeasure").textContent="MESURER À NOUVEAU"; if(!samples.length)return;
     const luma=samples.reduce((a,b)=>a+b.luma,0)/samples.length, clip=samples.reduce((a,b)=>a+b.clipped,0)/samples.length, dark=samples.reduce((a,b)=>a+b.dark,0)/samples.length;
-    appliedCalibration=Number($("meterCalibration").value); lastEV=10+Math.log2(Math.max(.01,luma)/.18)+appliedCalibration; calculate(lastEV);
+    appliedCalibration=Number($("meterCalibration").value); lastEV=10+Math.log2(Math.max(.01,luma)/.18)+appliedCalibration; updateControls(); calculate(lastEV);
     let q=`Luminosité estimée : EV ${lastEV.toFixed(1)} à ISO 100. `; if(clip>.12)q+="Zone très claire : vérifiez les hautes lumières.";else if(dark>.35)q+="Lumière très faible : stabilisez le téléphone.";else q+="Mesure stable dans la zone centrale."; $("meterQuality").textContent=q;
   }
   $("meterOpen").onclick=async()=>{overlay.classList.remove("hidden");document.body.style.overflow="hidden";updateControls();await startCamera();};
