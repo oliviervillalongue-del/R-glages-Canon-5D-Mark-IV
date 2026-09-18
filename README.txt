@@ -22,6 +22,8 @@ Version : ajout du posemètre utilisant la caméra du smartphone.
 - L’accès caméra nécessite l’application installée ou un hébergement HTTPS.
 - Une calibration avec le boîtier photo est recommandée avant utilisation réelle.
 
+Version 16 : suppression complète de « Rechercher une situation » et de sa fonction. Le menu visuel des types de prise de vue, avec catégories et icônes, est conservé.
+
 Correctif : recalcul immédiat après modification des ISO, de l’ouverture ou de la vitesse, avec indication visible du réglage imposé.
 
 Interface : suppression du cadre inférieur de résultats. La valeur calculée apparaît directement en jaune/orange dans le champ ouverture ou vitesse.
@@ -30,4 +32,4 @@ Interface : sélection automatique de la caméra arrière en mesure réfléchie 
 
 Titre visible sur la première page : Mathis Photo Assist — Multi-boîtiers.
 
-Mise à jour complète GitHub : cache v12 pour diffusion automatique aux utilisateurs.
+Mise à jour complète GitHub : cache v15 pour diffusion automatique aux utilisateurs.

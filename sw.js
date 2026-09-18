@@ -1,4 +1,4 @@
-const CACHE = "mathis-photo-assist-v14-portrait-et-mises-a-jour";
+const CACHE = "mathis-photo-assist-v16-sans-recherche-situation";
 const LOCAL = [
   "./",
   "./index.html",
