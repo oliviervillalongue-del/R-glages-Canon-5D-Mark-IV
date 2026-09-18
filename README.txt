@@ -15,6 +15,9 @@ Version : ajout des Objectifs conseillés pour les 39 situations et les 3 boîti
 
 Version : ajout de la carte Synchro flash (1er/2e rideau et HSS) dans les situations concernées.
 
-Version : ajout d’une fiche permanente de synchro flash propre à chaque boîtier (1er rideau, 2e rideau, HSS et particularités).
-
-Version : les informations de flash sont désormais regroupées dans la petite fenêtre Flash, via un menu déroulant.
+Version : ajout du posemètre utilisant la caméra du smartphone.
+- Mesure réfléchie sur la zone centrale du sujet.
+- Mesure incidente expérimentale, téléphone placé près du sujet.
+- Choix de la priorité ouverture ou vitesse, des ISO et de la correction de calibration.
+- L’accès caméra nécessite l’application installée ou un hébergement HTTPS.
+- Une calibration avec le boîtier photo est recommandée avant utilisation réelle.
