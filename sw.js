@@ -1,4 +1,4 @@
-const CACHE = "mathis-beta-v8-posemetre-camera-auto";
+const CACHE = "matis-beta-v9-posemetre-camera-auto";
 const LOCAL = [
   "./",
   "./index.html",
