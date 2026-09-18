@@ -1,4 +1,4 @@
-Canon Photo Assist — Version bêta
+Mathis — Assistant photo — Version bêta
 
 Fichiers à placer à la racine du dépôt GitHub Pages :
 - index.html
@@ -27,3 +27,5 @@ Correctif : recalcul immédiat après modification des ISO, de l’ouverture ou 
 Interface : suppression du cadre inférieur de résultats. La valeur calculée apparaît directement en jaune/orange dans le champ ouverture ou vitesse.
 
 Interface : sélection automatique de la caméra arrière en mesure réfléchie et de la caméra avant en mesure incidente ; suppression du bouton de changement de caméra.
+
+Nom de l’application : Mathis.

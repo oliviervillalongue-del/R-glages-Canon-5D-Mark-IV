@@ -1,6 +1,6 @@
 {
-  "name": "Canon Photo Assist — Version bêta",
-  "short_name": "Canon Photo",
+  "name": "Mathis — Assistant photo",
+  "short_name": "Mathis",
   "description": "Réglages terrain pour Canon EOS 5D Mark IV, 70D et 200D.",
   "start_url": "./",
   "scope": "./",
