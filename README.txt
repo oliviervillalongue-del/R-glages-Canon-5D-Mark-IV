@@ -21,3 +21,5 @@ Version : ajout du posemètre utilisant la caméra du smartphone.
 - Choix de la priorité ouverture ou vitesse, des ISO et de la correction de calibration.
 - L’accès caméra nécessite l’application installée ou un hébergement HTTPS.
 - Une calibration avec le boîtier photo est recommandée avant utilisation réelle.
+
+Correctif : recalcul immédiat après modification des ISO, de l’ouverture ou de la vitesse, avec indication visible du réglage imposé.

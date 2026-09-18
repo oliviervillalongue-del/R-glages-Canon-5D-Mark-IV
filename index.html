@@ -181,6 +181,7 @@ button,select,input{font:inherit}
 .meter-target{position:absolute;left:50%;top:50%;width:28%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 999px #0002;pointer-events:none}
 .meter-actions{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:9px}.meter-actions button{border:0;border-radius:9px;padding:12px;font-weight:900}.meter-read{background:var(--canon);color:#fff}.meter-flip{background:#292c30;color:#fff}
 .meter-form{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.meter-field{background:#121416;border:1px solid #34383d;border-radius:8px;padding:8px}.meter-field label{display:block;color:#91969c;font-size:9px;text-transform:uppercase;font-weight:800;margin-bottom:5px}.meter-field select,.meter-field input{width:100%;background:#090a0b;color:#fff;border:1px solid #45494e;border-radius:6px;padding:8px}
+.meter-field.active{border-color:var(--canon);box-shadow:0 0 0 1px #d7192044}.meter-field select:disabled{opacity:.42;color:#aaa}.meter-priority-help{grid-column:1/-1;color:#d8dade;background:#202328;border-radius:7px;padding:7px 9px;font-size:11px;line-height:1.35}
 .meter-result{margin-top:10px;border:1px solid #484d52;border-radius:11px;background:#17191c;padding:11px}.meter-result-main{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.meter-result-main div{background:#0d0f10;border-radius:7px;padding:8px;text-align:center}.meter-result-main small{display:block;color:#8f949a;font-size:9px;text-transform:uppercase}.meter-result-main strong{display:block;font-size:18px;margin-top:3px}.meter-quality{font-size:11px;line-height:1.4;color:#aeb3b8;margin-top:9px}.meter-warning{font-size:10px;line-height:1.35;color:#d5b873;margin-top:8px}
 @media(max-width:400px){.meter-result-main strong{font-size:15px}.meter-form{grid-template-columns:1fr 1fr}}
 .beta-users{margin-top:5px;color:#e3e4e5;font-size:11px}
@@ -326,6 +327,7 @@ button,select,input{font:inherit}
         <div class="meter-field"><label for="meterIso">ISO</label><select id="meterIso"><option>100</option><option>200</option><option selected>400</option><option>800</option><option>1600</option><option>3200</option><option>6400</option><option>12800</option></select></div>
         <div class="meter-field"><label for="meterAperture">Ouverture</label><select id="meterAperture"><option>1.4</option><option>1.8</option><option>2</option><option selected>2.8</option><option>4</option><option>5.6</option><option>8</option><option>11</option><option>16</option></select></div>
         <div class="meter-field"><label for="meterSpeed">Vitesse</label><select id="meterSpeed"><option value="0.033333">1/30 s</option><option value="0.016667">1/60 s</option><option value="0.008">1/125 s</option><option value="0.005" selected>1/200 s</option><option value="0.004">1/250 s</option><option value="0.002">1/500 s</option><option value="0.001">1/1000 s</option></select></div>
+        <div id="meterPriorityHelp" class="meter-priority-help">Vous imposez l’ouverture et les ISO : la vitesse sera recalculée automatiquement.</div>
         <div class="meter-field" style="grid-column:1/-1"><label for="meterCalibration">Calibration du téléphone (IL)</label><input id="meterCalibration" type="range" min="-5" max="5" step="0.3" value="0"><div id="meterCalibrationValue" style="font-size:11px;text-align:center;margin-top:4px">0 IL</div></div>
       </div>
       <div class="meter-result"><div class="meter-result-main"><div><small>Ouverture</small><strong id="meterResultAperture">—</strong></div><div><small>Vitesse</small><strong id="meterResultSpeed">—</strong></div><div><small>ISO</small><strong id="meterResultIso">—</strong></div></div><div id="meterQuality" class="meter-quality">Autorisez la caméra, puis effectuez une mesure.</div><div class="meter-warning">Mesure indicative : calibrez-la une première fois avec la mesure de votre appareil photo. Pour la mesure incidente, placez le téléphone près du visage, caméra tournée vers l’appareil photo, avec un diffuseur blanc translucide devant l’objectif.</div></div>
@@ -635,6 +637,17 @@ buildCameraCards();
     if(priority==="aperture"){n=Number($("meterAperture").value);t=nearest(speeds,(n*n)/(Math.pow(2,ev)*(iso/100)));}else{t=Number($("meterSpeed").value);n=nearest(apertures,Math.sqrt(t*Math.pow(2,ev)*(iso/100)));}
     $("meterResultAperture").textContent=`f/${n}`; $("meterResultSpeed").textContent=showSpeed(t); $("meterResultIso").textContent=iso;
   }
+  function updateControls(){
+    const aperturePriority=$("meterPriority").value==="aperture";
+    $("meterAperture").disabled=!aperturePriority; $("meterSpeed").disabled=aperturePriority;
+    $("meterAperture").closest(".meter-field").classList.toggle("active",aperturePriority);
+    $("meterSpeed").closest(".meter-field").classList.toggle("active",!aperturePriority);
+    $("meterPriorityHelp").textContent=aperturePriority
+      ?"Vous imposez l’ouverture et les ISO : la vitesse est recalculée automatiquement."
+      :"Vous imposez la vitesse et les ISO : l’ouverture est recalculée automatiquement.";
+    if(lastEV!==null) calculate(lastEV);
+    else $("meterQuality").textContent="Effectuez d’abord une mesure de lumière ; les changements seront ensuite recalculés immédiatement.";
+  }
   async function measure(){
     if(!stream){await startCamera();if(!stream)return;} $("meterMeasure").disabled=true; $("meterMeasure").textContent="MESURE…";
     const samples=[]; for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,160));const s=analyseFrame();if(s)samples.push(s);}
@@ -643,14 +656,17 @@ buildCameraCards();
     appliedCalibration=Number($("meterCalibration").value); lastEV=10+Math.log2(Math.max(.01,luma)/.18)+appliedCalibration; calculate(lastEV);
     let q=`Luminosité estimée : EV ${lastEV.toFixed(1)} à ISO 100. `; if(clip>.12)q+="Zone très claire : vérifiez les hautes lumières.";else if(dark>.35)q+="Lumière très faible : stabilisez le téléphone.";else q+="Mesure stable dans la zone centrale."; $("meterQuality").textContent=q;
   }
-  $("meterOpen").onclick=async()=>{overlay.classList.remove("hidden");document.body.style.overflow="hidden";await startCamera();};
+  $("meterOpen").onclick=async()=>{overlay.classList.remove("hidden");document.body.style.overflow="hidden";updateControls();await startCamera();};
   $("meterClose").onclick=()=>{overlay.classList.add("hidden");document.body.style.overflow="";if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}};
   $("meterReflected").onclick=()=>setMode("reflected"); $("meterIncident").onclick=()=>setMode("incident"); $("meterMeasure").onclick=measure;
   $("meterFlip").onclick=()=>{facing=facing==="environment"?"user":"environment";startCamera();};
-  $("meterPriority").onchange=()=>{const a=$("meterPriority").value==="aperture";$("meterAperture").disabled=!a;$("meterSpeed").disabled=a;if(lastEV!==null)calculate(lastEV);};
-  ["meterIso","meterAperture","meterSpeed"].forEach(id=>$(id).onchange=()=>{if(lastEV!==null)calculate(lastEV);});
+  $("meterPriority").addEventListener("change",updateControls);
+  ["meterIso","meterAperture","meterSpeed"].forEach(id=>{
+    const recalculate=()=>{if(lastEV!==null)calculate(lastEV);else $("meterQuality").textContent="Appuyez sur « MESURER LA LUMIÈRE » pour obtenir les réglages.";};
+    $(id).addEventListener("input",recalculate); $(id).addEventListener("change",recalculate);
+  });
   $("meterCalibration").oninput=e=>{const next=Number(e.target.value);$("meterCalibrationValue").textContent=`${next>0?"+":""}${next} IL`;if(lastEV!==null){lastEV+=next-appliedCalibration;appliedCalibration=next;calculate(lastEV);}};
-  $("meterSpeed").disabled=true;
+  updateControls();
 })();
 </script>
 <script>
