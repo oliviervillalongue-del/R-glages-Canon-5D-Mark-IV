@@ -1,0 +1,4 @@
+Ouvrez ce dossier, sélectionnez tous les fichiers sauf A_LIRE.txt,
+puis glissez-les dans la page GitHub « Upload files ».
+
+Les fichiers existants portant le même nom seront remplacés.
