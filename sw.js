@@ -1,4 +1,4 @@
-const CACHE = "canon-photo-assist-beta-v6-posemetre-valeur-couleur";
+const CACHE = "canon-photo-assist-beta-v7-posemetre-camera-auto";
 const LOCAL = [
   "./",
   "./index.html",

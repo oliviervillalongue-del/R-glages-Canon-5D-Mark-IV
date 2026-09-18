@@ -25,3 +25,5 @@ Version : ajout du posemètre utilisant la caméra du smartphone.
 Correctif : recalcul immédiat après modification des ISO, de l’ouverture ou de la vitesse, avec indication visible du réglage imposé.
 
 Interface : suppression du cadre inférieur de résultats. La valeur calculée apparaît directement en jaune/orange dans le champ ouverture ou vitesse.
+
+Interface : sélection automatique de la caméra arrière en mesure réfléchie et de la caméra avant en mesure incidente ; suppression du bouton de changement de caméra.

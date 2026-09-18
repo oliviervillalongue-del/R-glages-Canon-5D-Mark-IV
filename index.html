@@ -179,7 +179,7 @@ button,select,input{font:inherit}
 .meter-view{position:relative;overflow:hidden;border:1px solid #444;border-radius:12px;background:#000;aspect-ratio:4/3}
 #meterVideo{width:100%;height:100%;object-fit:cover;display:block}
 .meter-target{position:absolute;left:50%;top:50%;width:28%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 999px #0002;pointer-events:none}
-.meter-actions{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:9px}.meter-actions button{border:0;border-radius:9px;padding:12px;font-weight:900}.meter-read{background:var(--canon);color:#fff}.meter-flip{background:#292c30;color:#fff}
+.meter-actions{margin-top:9px}.meter-actions button{width:100%;border:0;border-radius:9px;padding:12px;font-weight:900}.meter-read{background:var(--canon);color:#fff}.meter-camera-status{text-align:center;color:#9fa4aa;font-size:10px;margin-top:6px}
 .meter-form{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.meter-field{background:#121416;border:1px solid #34383d;border-radius:8px;padding:8px}.meter-field label{display:block;color:#91969c;font-size:9px;text-transform:uppercase;font-weight:800;margin-bottom:5px}.meter-field select,.meter-field input{width:100%;background:#090a0b;color:#fff;border:1px solid #45494e;border-radius:6px;padding:8px}
 .meter-field.active{border-color:var(--canon);box-shadow:0 0 0 1px #d7192044}.meter-field select:disabled{opacity:.42;color:#aaa}.meter-priority-help{grid-column:1/-1;color:#d8dade;background:#202328;border-radius:7px;padding:7px 9px;font-size:11px;line-height:1.35}
 .meter-field.calculated{border-color:#e2a12a}.meter-field.calculated select:disabled{opacity:1;color:#ffd066;font-weight:900;border-color:#9b7225;background:#19150d}
@@ -323,7 +323,7 @@ button,select,input{font:inherit}
       <div id="meterHelp" class="meter-help">Approchez le téléphone du sujet et placez le cercle sur le visage ou la zone à mesurer.</div>
       <div class="meter-view"><video id="meterVideo" playsinline muted></video><div class="meter-target" aria-hidden="true"></div></div>
       <canvas id="meterCanvas" width="160" height="120" class="hidden"></canvas>
-      <div class="meter-actions"><button id="meterMeasure" class="meter-read" type="button">MESURER LA LUMIÈRE</button><button id="meterFlip" class="meter-flip" type="button" title="Changer de caméra">↻ Caméra</button></div>
+      <div class="meter-actions"><button id="meterMeasure" class="meter-read" type="button">MESURER LA LUMIÈRE</button><div id="meterCameraStatus" class="meter-camera-status">Caméra arrière sélectionnée automatiquement</div></div>
       <div class="meter-form">
         <div class="meter-field"><label for="meterPriority">Réglage imposé</label><select id="meterPriority"><option value="aperture">Ouverture</option><option value="speed">Vitesse</option></select></div>
         <div class="meter-field"><label for="meterIso">ISO</label><select id="meterIso"><option>100</option><option>200</option><option selected>400</option><option>800</option><option>1600</option><option>3200</option><option>6400</option><option>12800</option></select></div>
@@ -626,12 +626,16 @@ buildCameraCards();
     try{
       stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:false});
       video.srcObject=stream; await video.play();
+      $("meterCameraStatus").textContent=facing==="environment"?"Caméra arrière sélectionnée automatiquement":"Caméra avant sélectionnée automatiquement";
       $("meterQuality").textContent="Caméra prête. Maintenez le téléphone immobile puis mesurez.";
     }catch(e){$("meterQuality").textContent="Accès caméra impossible. Vérifiez l’autorisation caméra et ouvrez l’application en HTTPS.";}
   }
-  function setMode(mode){
-    meterMode=mode; $("meterReflected").classList.toggle("on",mode==="reflected"); $("meterIncident").classList.toggle("on",mode==="incident");
-    $("meterHelp").textContent=mode==="reflected"?"Approchez le téléphone du sujet et placez le cercle sur le visage ou la zone à mesurer.":"Placez le téléphone près du visage. Orientez la caméra vers l’appareil photo et couvrez-la idéalement d’un diffuseur blanc translucide.";
+  async function setMode(mode){
+    meterMode=mode; facing=mode==="reflected"?"environment":"user";
+    $("meterReflected").classList.toggle("on",mode==="reflected"); $("meterIncident").classList.toggle("on",mode==="incident");
+    $("meterHelp").textContent=mode==="reflected"?"Caméra arrière automatique : approchez le téléphone du sujet et placez le cercle sur le visage ou la zone à mesurer.":"Caméra avant automatique : placez l’écran près du visage, tourné vers l’appareil photo, avec idéalement un diffuseur blanc translucide devant la caméra avant.";
+    $("meterCameraStatus").textContent=mode==="reflected"?"Caméra arrière sélectionnée automatiquement":"Caméra avant sélectionnée automatiquement";
+    if(stream) await startCamera();
   }
   function analyseFrame(){
     if(!video.videoWidth) return null;
@@ -674,7 +678,6 @@ buildCameraCards();
   $("meterOpen").onclick=async()=>{overlay.classList.remove("hidden");document.body.style.overflow="hidden";updateControls();await startCamera();};
   $("meterClose").onclick=()=>{overlay.classList.add("hidden");document.body.style.overflow="";if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}};
   $("meterReflected").onclick=()=>setMode("reflected"); $("meterIncident").onclick=()=>setMode("incident"); $("meterMeasure").onclick=measure;
-  $("meterFlip").onclick=()=>{facing=facing==="environment"?"user":"environment";startCamera();};
   $("meterPriority").addEventListener("change",updateControls);
   ["meterIso","meterAperture","meterSpeed"].forEach(id=>{
     const recalculate=()=>{if(lastEV!==null)calculate(lastEV);else $("meterQuality").textContent="Appuyez sur « MESURER LA LUMIÈRE » pour obtenir les réglages.";};
