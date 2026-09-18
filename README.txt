@@ -28,4 +28,4 @@ Interface : suppression du cadre inférieur de résultats. La valeur calculée a
 
 Interface : sélection automatique de la caméra arrière en mesure réfléchie et de la caméra avant en mesure incidente ; suppression du bouton de changement de caméra.
 
-Titre visible sur la première page : Matis Photo Assist — Multi-boîtiers.
+Titre visible sur la première page : Mathis Photo Assist — Multi-boîtiers.
